@@ -13,3 +13,4 @@ rebar.lock
 /nkactor.version
 /.rebar3
 /_checkouts
+/nkactor_files.version

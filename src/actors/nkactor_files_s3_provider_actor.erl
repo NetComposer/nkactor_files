@@ -119,7 +119,7 @@ sync_op({nkactor_files_get_upload_link, CT}, _From, #actor_st{actor=Actor}=Actor
             CT = to_bin(CT),
             {Bucket, Path} = get_bucket(Name, Spec),
             TTL = maps:get(direct_upload_secs, Spec, ?FILE_DIRECT_UPLOAD_SECS),
-            {Verb, Uri} = nkpacket_httpc_s3:make_put_url(Bucket, Path, CT, TTL, Spec),
+            {Verb, Uri} = nkactor_files_s3:make_put_url(Bucket, Path, CT, TTL, Spec),
             {ok, #{verb=>Verb, uri=>Uri, ttl=>TTL}, ActorSt}
     end,
     {reply, Reply, ActorSt};
@@ -136,7 +136,7 @@ sync_op({nkactor_files_get_direct_download_link, Id}, _From, #actor_st{actor=Act
         false ->
             {Bucket, Path} = get_bucket(to_bin(Id), Spec),
             TTL = maps:get(direct_download_secs, Spec, ?FILE_DIRECT_DOWNLOAD_SECS),
-            {Verb, Uri} = nkpacket_httpc_s3:make_get_url(Bucket, Path, TTL, Spec),
+            {Verb, Uri} = nkactor_files_s3:make_get_url(Bucket, Path, TTL, Spec),
             {ok, #{verb=>Verb, uri=>Uri, ttl=>TTL}, ActorSt}
     end,
     {reply, Reply, ActorSt};
@@ -144,7 +144,7 @@ sync_op({nkactor_files_get_direct_download_link, Id}, _From, #actor_st{actor=Act
 sync_op({nkactor_files_check_meta, Id}, _From, #actor_st{actor=Actor}=ActorSt) ->
     #{data:=#{spec:=Spec}} = Actor,
     {Bucket, Path} = get_bucket(to_bin(Id), Spec),
-    {<<"HEAD">>, Url, Hds} = nkpacket_httpc_s3:get_meta(Bucket, Path, Spec),
+    {<<"HEAD">>, Url, Hds} = nkactor_files_s3:get_meta(Bucket, Path, Spec),
     Reply = case request(<<"HEAD">>, Url, Hds, <<>>, Spec) of
         {ok, _, #{s3_headers:=Headers}} ->
             Headers2 = [{nklib_util:to_lower(Key), Val} || {Key, Val} <- Headers],
@@ -183,7 +183,7 @@ files_upload(#{name:=Name, data:=#{spec:=FileSpec}}, Body, Provider) ->
     CT = maps:get(content_type, FileSpec),
     Hash = crypto:hash(sha256, Body),
     #{data:=#{spec:=ProvSpec}} = Provider,
-    {Method, Url, Hds} = nkpacket_httpc_s3:put_object(Bucket, Path, CT, Hash, ProvSpec),
+    {Method, Url, Hds} = nkactor_files_s3:put_object(Bucket, Path, CT, Hash, ProvSpec),
     case request(Method, Url, Hds, Body, ProvSpec) of
         {ok, _Body, Meta} ->
             {ok, Meta};
@@ -196,7 +196,7 @@ files_upload(#{name:=Name, data:=#{spec:=FileSpec}}, Body, Provider) ->
 files_download(#{name:=Name}, Provider) ->
     #{data:=#{spec:=ProvSpec}} = Provider,
     {Bucket, Path} = get_bucket(Name, ProvSpec),
-    {Method, Url, Hds} = nkpacket_httpc_s3:get_object(Bucket, Path, ProvSpec),
+    {Method, Url, Hds} = nkactor_files_s3:get_object(Bucket, Path, ProvSpec),
     request(Method, Url, Hds, <<>>, ProvSpec).
 
 
@@ -204,7 +204,7 @@ files_download(#{name:=Name}, Provider) ->
 files_delete(#{name:=Name}, Provider) ->
     #{data:=#{spec:=ProvSpec}} = Provider,
     {Bucket, Path} = get_bucket(Name, ProvSpec),
-    {Method, Url, Hds} = nkpacket_httpc_s3:delete(Bucket, Path, ProvSpec),
+    {Method, Url, Hds} = nkactor_files_s3:delete(Bucket, Path, ProvSpec),
     case request(Method, Url, Hds, <<>>, ProvSpec) of
         {ok, _, _} ->
             ok;

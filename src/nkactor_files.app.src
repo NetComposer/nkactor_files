@@ -5,7 +5,6 @@
     {registered, []},
     {mod, {nkactor_files_app, []}},
     {applications, [
-        nkpacket,
         nkactor
     ]},
     {env, [
