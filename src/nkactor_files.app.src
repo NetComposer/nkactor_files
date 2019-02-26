@@ -1,0 +1,13 @@
+{application, nkactor_files, [
+    {description, "Actor Files Framework"},
+    {vsn, "develop"},
+    {modules, []},
+    {registered, []},
+    {mod, {nkactor_files_app, []}},
+    {applications, [
+        nkpacket,
+        nkactor
+    ]},
+    {env, [
+    ]}
+]}.
