@@ -228,22 +228,17 @@ get_bucket(Name, #{bucket:=Bucket}=ProvSpec) ->
 %% @private
 request(Method, Url, Hds, Bin, Spec) ->
     PoolId = maps:get(hackney_pool, Spec, default),
-    lager:error("NKLOG REQUEST ~p ~p ~p", [Method, Url, Hds]),
-
     case hackney:request(Method, Url, Hds, Bin, [{pool, PoolId}, with_body]) of
-        {ok, 200, ReplyHds, Body} ->
-            {ok, Body, #{s3_headers=>ReplyHds}};
+        {ok, 200, ReplyHds, ReplyBody} ->
+            {ok, ReplyBody, #{s3_headers=>ReplyHds}};
         {ok, 204, ReplyHds, _} ->
             {ok,<<>>, #{s3_headers=>ReplyHds}};
         {ok, 403, _, B} ->
-            lager:error("NKLOG B ~p", [B]),
             {error, unauthorized};
         {ok, 404, _, _} ->
             {error, file_not_found};
-        {ok, Code, Hds, Body} ->
-            {error, {http_error, Code, Hds, Body}};
-        {ok, Code, Hds} ->
-            {error, {http_error, Code, Hds, <<>>}};
+        {ok, Code, ReplyHds, ReplyBody} ->
+            {error, {http_error, Code, ReplyHds, ReplyBody}};
         {error, Error} ->
             {error, Error}
     end.

@@ -64,7 +64,7 @@ start() ->
                         scheme => http,
                         host => localhost,
                         port => 9000,
-                        bucket => bucket1,
+                        bucket => "bucket1",
                         key => "5UBED0Q9FB7MFZ5EWIOJ",
                         secret => "CaK4frX0uixBOh16puEsWEvdjQ3X3RTDvkvE+tUI"
                     }
@@ -73,8 +73,6 @@ start() ->
         ]
     },
     nkserver:start_link(<<"Actor">>, ?MODULE, Config).
-
-
 
 
 
@@ -253,7 +251,7 @@ test_s3() ->
     File1 = #{
         group => ?GROUP_FILES,
         resource => ?RES_FILES_FILES,
-        name => file2,
+        name => file3,
         namespace => ?MODULE,
         data => #{
             spec => #{
@@ -273,7 +271,6 @@ test_s3() ->
             spec := #{
                 provider := <<"prov3.nkactor_files_sample">>,
                 content_type := <<"any">>,
-                hash := Hash1,
                 size := 3,
                 password := _
             } = Spec2
@@ -286,7 +283,6 @@ test_s3() ->
         }
     } = File2,
     false = maps:is_key(body_binary, Spec2),
-    Hash1 = base64:encode(crypto:hash(sha256, <<"123">>)),
 
     Req1 = #{verb => get, uid => UID2},
     {ok, File2, _} = nkactor_request:request(Req1),
@@ -297,6 +293,10 @@ test_s3() ->
 
     Req3 = Req1#{verb => get, uid => UID2, subresource => <<"_download">>},
     {raw, {<<"any">>, <<"123">>}, _} = nkactor_request:request(Req3),
+
+    Req4 = Req1#{verb => get, uid => UID2, subresource => <<"_rpc/">>},
+
+
 
     nkactor:stop(UID2),
     ok.

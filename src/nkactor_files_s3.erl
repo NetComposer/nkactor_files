@@ -95,7 +95,6 @@ get_meta(Bucket, Path, Config) ->
     {Method::binary(), Uri::binary(), [{binary(), binary()}]}.
 
 put_object(Bucket, Path, CT, BodyHash, Config) ->
-    lager:error("NKLOG PUT1"),
     Headers1 = maps:get(headers, Config, []),
     Headers2 = case maps:find(acl, Config) of
         {ok, ACL} ->
