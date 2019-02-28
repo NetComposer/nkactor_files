@@ -23,6 +23,7 @@
 -author('Carlos Gonzalez <carlosj.gf@gmail.com>').
 -export([op_get_spec/1, op_get_direct_download_link/2, op_get_upload_link/2,
          op_get_check_meta/2]).
+-export([link_to_provider/2]).
 -export([upload/3, download/2, delete/2]).
 -export([get_url/2]).
 -export([parse/2, request/4, sync_op/3]).
@@ -74,6 +75,20 @@ op_get_upload_link(Id, CT) ->
 %% @doc
 op_get_check_meta(Id, ExternalId) ->
     nkactor_srv:sync_op(Id, {nkactor_files_check_meta, ExternalId}).
+
+
+
+%% @private
+link_to_provider(ProviderId, Actor) ->
+    case op_get_spec(ProviderId) of
+        {ok, ProvActorId, _} ->
+            LinkType = nkactor_lib:link_type(?GROUP_FILES, ?LINK_FILES_PROVIDERS),
+            {ok, nkactor_lib:add_link(ProvActorId, LinkType, Actor)};
+        _ ->
+            {error, {provider_invalid, ProviderId}}
+    end.
+
+
 
 
 %% @doc

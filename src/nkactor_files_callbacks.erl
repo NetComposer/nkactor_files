@@ -48,7 +48,7 @@ actor_db_find(SrvId, ActorId) ->
             %lager:error("NKLOG FIND ~p", [lager:pr(ActorId, ?MODULE)]),
             case find_provider(List, ActorId) of
                 {ok, Actor} ->
-                    {ok, nkactor_lib:get_actor_id(Actor), #{}};
+                    {ok, nkactor_lib:actor_to_actor_id(Actor), #{}};
                 continue ->
                     continue
             end;

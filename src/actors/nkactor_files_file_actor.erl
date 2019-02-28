@@ -320,7 +320,7 @@ do_parse_upload(#{body_binary:=_}, _File, _Provider) ->
     {error, {field_missing, <<"spec.content_type">>}};
 
 do_parse_upload(#{external_id:=Id, content_type:=CT}=Spec, File, Provider) ->
-    ProvActorId = nkactor_lib:get_actor_id(Provider),
+    ProvActorId = nkactor_lib:actor_to_actor_id(Provider),
     case nkactor_files_provider:op_get_check_meta(ProvActorId, Id) of
         {ok, #{content_type:=CT, size:=Size}} ->
             #{data:=Data} = File,

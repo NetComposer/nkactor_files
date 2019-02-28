@@ -106,7 +106,7 @@ create_provider(#{name:=Name}=Actor) ->
 		{ok, Actor2} ->
 			{ok, Actor2};
 		{error, uniqueness_violation} ->
-			ActorId = nkactor_lib:get_actor_id(Actor),
+			ActorId = nkactor_lib:actor_to_actor_id(Actor),
 			nkactor:stop(ActorId),
 			timer:sleep(100),
 			case nkactor:create(Actor, #{forced_uid=>UID}) of
